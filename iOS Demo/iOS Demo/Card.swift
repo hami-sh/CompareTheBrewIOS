@@ -14,13 +14,14 @@ struct Card {
     var isFaceUp = false
     var isMatched = false
     var identifier: Int // need to be init
+    // all need to be public to get info
     
-    static var identifierFactory = 0
+    private static var identifierFactory = 0
     
     // dont store emoji, as that is a part of the UI!
     // id is enough to match 2 cards
     
-    static func getUUID() -> Int {
+    private static func getUUID() -> Int {
         identifierFactory += 1
         return identifierFactory // dont need card. as we are in a static method!
     }

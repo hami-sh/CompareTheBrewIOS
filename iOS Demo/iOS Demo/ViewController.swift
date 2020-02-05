@@ -10,23 +10,27 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    lazy var game = Concentration(numberOfPairs: (cards.count + 1) / 2) // link controller with a model!
+    var numberOfPairs: Int {
+        get {
+            return (cards.count + 1) / 2
+        }
+    }
+    
+    private lazy var game = Concentration(numberOfPairs: numberOfPairs) // link controller with a model!
     // dont need init here as all variables are initialised ( see var cards! )
+    // private as number of pairs of cards is tied to UI... therefore protect
     
-    
-    var flipCount = 0 {
+    private(set) var flipCount = 0 { // dont allow others to set.
         didSet {
             flipsLabel.text = "Flips: \(flipCount)"
         }
     }
+        
+    @IBOutlet private var cards: [UIButton]!
     
-    var emojis = ["🧬", "🍺", "🍺", "🧬"]
+    @IBOutlet private weak var flipsLabel: UILabel!
     
-    @IBOutlet var cards: [UIButton]!
-    
-    @IBOutlet weak var flipsLabel: UILabel!
-    
-    @IBAction func touchCard(_ sender: UIButton) {
+    @IBAction private func touchCard(_ sender: UIButton) {
         // function called when clicked by a general button
         if let cardNumber = cards.firstIndex(of: sender) {
             print("touched \(cardNumber)")
@@ -36,7 +40,14 @@ class ViewController: UIViewController {
         }
     }
     
-    func updateView() {
+    @IBAction func newGameButton(_ sender: UIButton) {
+        game = Concentration(numberOfPairs: (cards.count + 1) / 2)
+        emojiChoices = ["⚽️", "🎾", "💎", "❤️", "🐶", "🐵", "🐷", "🌻", "🌎", "🇦🇺", "🧬", "🍺", "🥰"]
+        flipCount = -1
+        updateView()
+    }
+    
+    private func updateView() {
         for index in cards.indices {
             let button = cards[index]
             let card = game.cards[index]
@@ -52,11 +63,11 @@ class ViewController: UIViewController {
     }
     
     
-    var emojiChoices = ["⚽️", "🎾", "💎", "❤️", "🐶", "🐵", "🐷", "🌻", "🌎", "🇦🇺"]
+    private var emojiChoices = ["⚽️", "🎾", "💎", "❤️", "🐶", "🐵", "🐷", "🌻", "🌎", "🇦🇺", "🧬", "🍺", "🥰"]
     
-    var emoji = [Int:String]() // map int to emoji
+    private var emoji = [Int:String]() // map int to emoji
     
-    func emoji(for card: Card) -> String {
+    private func emoji(for card: Card) -> String {
 //        if let chosenEmoji = emoji[card.identifier] { // handle optional
 //            return chosenEmoji
 //        } else {
@@ -69,14 +80,18 @@ class ViewController: UIViewController {
 //            return "?"
 //        }
         if emoji[card.identifier] == nil, emojiChoices.count > 0 {
-                let randomIndex = Int(arc4random_uniform(UInt32(emojiChoices.count))) // explicitly convert!
-                emoji[card.identifier] = emojiChoices.remove(at: randomIndex)
-            }
-        return emoji[card.identifier] ?? "?"
+            let randomIndex = emojiChoices.count.arc4random
+            print("--")
+            print(randomIndex)
+            print(emojiChoices[randomIndex])
+            emoji[card.identifier] = emojiChoices.remove(at: randomIndex)
+            print("--")
+        }
+        return emoji[card.identifier] ?? String(card.identifier)
     }
     
     
-    func flipCard(withEmoji emoji: String, on button: UIButton) {
+    private func flipCard(withEmoji emoji: String, on button: UIButton) {
         // function called to flip the button over.
         
 //        flipCount += 1
@@ -92,3 +107,14 @@ class ViewController: UIViewController {
     
 }
 
+extension Int { // extend int class!
+    var arc4random: Int {
+        if self > 0 {
+            return Int(arc4random_uniform(UInt32(self)))
+        } else if self < 0 {
+            return -Int(arc4random_uniform(UInt32(self)))
+        } else {
+            return 0
+        }
+    }
+}

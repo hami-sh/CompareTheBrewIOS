@@ -10,12 +10,14 @@ import Foundation // not a UI file, its a model!
 
 
 // models are made with classes.
-class Concentration {
+struct Concentration {
     
-    var cards = Array<Card>() // instantiate! could put args within there (init method)
-    var indexOfXOROneFaceUp: Int? // doesnt necessarily exist! else nil
+    // must be public so we can see the cards, but set does not need to be enabled.
+    private(set) var cards = Array<Card>() // instantiate! could put args within there (init method)
+    private var indexOfXOROneFaceUp: Int? // doesnt necessarily exist! else nil
     
-    func chooseCard(at index: Int) {
+    mutating func chooseCard(at index: Int) { // need mutating here so we can change values of the struct. 
+        assert(cards.indices.contains(index), "Concentration:ChooseCard(at: \(index)) ; chosen index not in the cards")
         // choose a card by an index -- occurs when touchCard
 //        if cards[index].isFaceUp {
 //            cards[index].isFaceUp = false
@@ -43,6 +45,7 @@ class Concentration {
     }
     
     init(numberOfPairs: Int) {
+        assert(numberOfPairs > 0, "invalid pairs")
         for _ in 1...numberOfPairs { // sequence in swift! go from 0 to numberPairs-1 (use _ so that we ignore it!)
             let card = Card()
             cards.append(card)
